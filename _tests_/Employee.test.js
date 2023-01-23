@@ -2,7 +2,7 @@ const Employee = require("../lib/employee");
 
 describe("Employee", () => {
 	describe("Initialization", () => {
-		it("should create an Employee object with a name, id, and employee if provided valid arguments", () => {
+		it("should create an Employee object with a name, id, and email if provided valid arguments", () => {
 			const supervisor = new Employee('Michael', 'michael@something.com');
 
 			expect(supervisor.name).toEqual("Michael");
@@ -11,30 +11,30 @@ describe("Employee", () => {
 		});
 
 		it("should throw an error if provided no arguments", () => {
-			const cb = () => new Employee();
+			const staff = () => new Employee();
 
-			expect(cb).toThrow();
+			expect(staff).toThrow();
 		});
 
-		it("should throw an error if not provided an id", () => {
-			const cb = () => new Employee("Michael");
+		it("should throw an error if not provided an email", () => {
+			const staff = () => new Employee("Michael");
 			const err = new Error("Expected parameter 'Email' to be a non-empty string");
 
-			expect(cb).toThrowError(err);
+			expect(staff).toThrowError(err);
 		});
 
 		it("should throw an error if 'name' is not a string", () => {
-			const cb = () => new Employee(10, 'michael@something.com');
+			const staff = () => new Employee(10, 'michael@something.com');
 			const err = new Error("Expected parameter 'name' to be a non-empty string");
 
-			expect(cb).toThrowError(err);
+			expect(staff).toThrowError(err);
 		});
 
 		it("should throw an error if 'email' is not a string", () => {
-			const cb = () => new Employee("Michael", 15);
+			const staff = () => new Employee("Michael", 15);
 			const err = new Error("Expected parameter 'Email' to be a non-empty string");
 
-			expect(cb).toThrowError(err);
+			expect(staff).toThrowError(err);
 		});
 	});
 
