@@ -72,7 +72,7 @@ describe("Manager", () => {
 			const staff1 = new Manager('Jones', 'jones@something.com', 120);
 			const staff2 = new Manager('Michael Ben', 'mben@something.com', 121);
 
-			// Verify that the getOfficeNumber() method returns the Manager's email address
+			// Verify that the getOfficeNumber() method returns the Manager's Office Number
 			expect(supervisor.getOfficeNumber()).toEqual(101);
 			expect(staff1.getOfficeNumber()).toEqual(120);
 			expect(staff2.getOfficeNumber()).toEqual(121);
