@@ -40,12 +40,12 @@ describe("Engineer", () => {
 	});
 
 	describe("getEmail", () => {
-		it("should return the email of an employee", () => {
+		it("should return the email of an engineer", () => {
 			// Create new Engineers to perform the tests
 			const supervisor = new Engineer('Michael', 'michael@something.com', 'imichael');
 			const staff1 = new Engineer('Jones', 'jones@something.com', 'jimjones');
 
-			// Verify that the getName() method returns the Engineer's name
+			// Verify that the getEmail() method returns the Engineer's email address
 			expect(supervisor.getEmail()).toEqual('michael@something.com');
 			expect(staff1.getEmail()).toEqual('jones@something.com');
 		});
