@@ -1,13 +1,17 @@
-const Employee = require("./lib/employee");
+// Include packages needed for this application
+const runGenerator = require('./src/appProfile');
+const { log } = require('console');
 
-let first = new Employee('Mickey', 1, 'kenaa@example.com');
-let second = new Employee('Andrew', 2, 'andrew@example.com');
-let third = new Employee('Jones', 3, 'jones@example.com');
+// Welcome message to the user
+log('\nWelcome to the Team Profile Generator!\n');
 
-console.log(first.getName(), first.getId(), first.getRole());
-console.log(second.getName(), second.getId(), second.getRole());
-console.log(third.getName(), third.getId(), third.getRole());
+async function init() {
+	// Run the Team Profile Generator and display feedback to the user
+	let userFeedBack = await runGenerator();
 
-console.log(first.getCounter(), first.getLocalID());
-console.log(second.getCounter(), second.getLocalID());
-console.log(third.getCounter(), third.getLocalID());
+	// Display feedback to the user
+	log(userFeedBack);
+}
+
+// Initialize and run the application
+init();
