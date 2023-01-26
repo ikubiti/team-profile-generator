@@ -2,7 +2,7 @@
 const inquirer = require('inquirer');
 const { log } = require('console');
 
-// const Employee = require('../lib/employee');
+// Require to create objects from the application classes
 const Manager = require('../lib/manager');
 const Engineer = require('../lib/engineer');
 const Intern = require('../lib/intern');
@@ -10,7 +10,10 @@ const generateTeamPage = require('./generateHtml');
 
 const prompt = inquirer.createPromptModule();
 // Keep the list of team members for easy reference
-const unitMembers = [];
+let teamManager;
+const teamEngineers = [];
+const teamInterns = [];
+const allIDs = [];
 
 // display messages in preferred colors to user to gain attention
 function fontColor(color, text) {
@@ -66,9 +69,13 @@ const appPrompts = {
 	editMember: fontYellow('Edit an existing Team Member?'),
 	finishTeam: fontYellow('Finish Team Building?'),
 	inputValidation: fontRed('Please provide a valid input'),
+	idValidation: fontRed('Please provide a different "Id number", current Id number already in use'),
 	emailValidation: fontRed('Please provide a valid email!!!'),
 	validMember: fontBlue('New Team Member Successfully Created!\n'),
 	impossible: fontRed('HOW DID WE GET HERE!!!'),
+	editPrompt: fontYellow('Select the members you wish to edit or update:'),
+	editMembers: fontYellow('Choose the properties you wish to edit:'),
+	noMembers: fontRed('\nPlease add members to your team first!!!\n'),
 };
 
 // check for empty inputs
@@ -86,17 +93,53 @@ const checkNumber = (value) => {
 		return appPrompts.inputValidation;
 	}
 
+	if (value === '1') {
+		return appPrompts.idValidation;
+	}
+
 	return true;
+};
+
+// Filter input for id numbers
+const filterIdInput = (value) => {
+	let val = parseInt(value);
+	if (val) {
+		if (allIDs.includes(val)) {
+			return '1';
+		}
+
+		return val;
+	}
+
+	return '';
 };
 
 // Filter input for valid numbers
 const filterInput = (value) => {
-	let id = parseInt(value);
-	if (id) {
-		return id;
+	let val = parseInt(value);
+	if (val) {
+		return val;
 	}
 
 	return '';
+};
+
+// Filter Team members to edit
+const filterUpdate = (answers, teamList) => {
+	let tempAns = [...teamList];
+	let ans = [];
+	tempAns.forEach((member) => {
+		let aMember = `${member.name} - ${member.id} - ${member.role}`;
+		if (answers.includes(aMember)) {
+			ans.push(member);
+			let index = teamList.indexOf(member);
+			teamList.splice(index, 1);
+			index = allIDs.indexOf(member.id);
+			allIDs.splice(index, 1);
+		}
+	});
+
+	return ans;
 };
 
 // check for valid emails
@@ -154,7 +197,7 @@ const teamCreation = (employee) => {
 			name: 'id',
 			message: fontCyan(`What is the ${employee}'s employee ID?`),
 			validate: checkNumber,
-			filter: filterInput,
+			filter: filterIdInput,
 			waitUserInput: true,
 		},
 		{
@@ -188,7 +231,7 @@ const teamCreation = (employee) => {
 		{
 			type: 'input',
 			name: 'school',
-			message: fontCyan(`What is the ${employee}'s school?`),
+			message: fontCyan(`What is the name ${employee}'s school?`),
 			validate: checkInput,
 			when() {
 				return employee === 'Intern';
@@ -198,6 +241,92 @@ const teamCreation = (employee) => {
 	];
 };
 
+// Get single input from user
+const singleInput = (customPrompt) => {
+	return {
+		type: 'input',
+		name: 'custom',
+		message: fontYellow(customPrompt),
+		validate: checkInput,
+		waitUserInput: true,
+	};
+};
+
+// Get single number input from user
+const singleNumber = (customPrompt) => {
+	return {
+		type: 'input',
+		name: 'customNumber',
+		message: fontYellow(customPrompt),
+		validate: checkNumber,
+		filter: filterIdInput,
+		waitUserInput: true,
+	};
+};
+
+// Generate eligible team members for updates
+const listMembers = (members, msg) => {
+	return {
+		type: 'checkbox',
+		message: msg,
+		name: 'ans',
+		pageSize: 7,
+		choices: members,
+		waitUserInput: true,
+	};
+};
+
+// control the team editing process
+async function getAllUpdates(updateTeam) {
+	for (let member of updateTeam) {
+		let displayMember = '';
+		let options = [];
+		for (aKey in member) {
+			options.push({ name: `Edit ${aKey}` });
+			if (displayMember != '') {
+				displayMember += ', ';
+			}
+			displayMember += `(${aKey}: ${member[aKey]})`;
+		}
+
+		// Show current member to user
+		log(fontPurple(`\n${displayMember}`));
+		let { ans } = await prompt(listMembers(options, appPrompts.editMembers)).then((answer) => answer);
+		for (aKey in member) {
+			if (!ans.includes(`Edit ${aKey}`)) continue;
+			switch (aKey) {
+				case 'role':
+					// Automatic role selection
+					if (member[aKey] === 'Engineer') {
+						member[aKey] = 'Intern';
+						delete member.github;
+						let { custom } = await prompt(singleInput('Edit school')).then((answer) => answer);
+						member.school = custom;
+					} else {
+						member[aKey] = 'Engineer';
+						delete member.school;
+						let { custom } = await prompt(singleInput('Edit github')).then((answer) => answer);
+						member.github = custom;
+					}
+					break;
+
+				case 'id':
+					let { customNumber } = await prompt(singleNumber(`Edit ${aKey}`)).then((answer) => answer);
+					member[aKey] = customNumber;
+					break;
+
+				default:
+					let { custom } = await prompt(singleInput(`Edit ${aKey}`)).then((answer) => answer);
+					member[aKey] = custom;
+			}
+		}
+
+		// Add new member to team
+		createMemberProfile(member, member.role);
+	};
+
+}
+
 // Present feedback to user
 function displayFeedback(employee) {
 	log(`\n${employee}\n${appPrompts.validMember}`);
@@ -205,17 +334,21 @@ function displayFeedback(employee) {
 
 function createMemberProfile(employee, type) {
 	let newMember;
+	// create and save new members
 	switch (type) {
 		case 'Manager':
 			newMember = new Manager(employee.name, employee.id, employee.email, employee.officeNumber);
+			teamManager = newMember;
 			break;
 
 		case 'Engineer':
 			newMember = new Engineer(employee.name, employee.id, employee.email, employee.github);
+			teamEngineers.push(newMember);
 			break;
 
 		case 'Intern':
 			newMember = new Intern(employee.name, employee.id, employee.email, employee.school);
+			teamInterns.push(newMember);
 			break;
 
 		// Major bug in application, just exit
@@ -224,10 +357,24 @@ function createMemberProfile(employee, type) {
 			process.exit(1);
 	}
 
-	// Add new member
-	unitMembers.push(newMember);
+	// save new id
+	allIDs.push(newMember.id);
 	// Display feedback to user
 	displayFeedback(newMember);
+}
+
+// Update existing members except the manager
+async function updateMembers() {
+	// Get all the eligible members
+	const members = [...teamEngineers, ...teamInterns];
+	// Get user selection
+	const selectList = [];
+	members.forEach((member) => {
+		selectList.push({ name: `${member.name} - ${member.id} - ${member.role}` });
+	});
+	let { ans } = await prompt(listMembers(selectList, appPrompts.editPrompt)).then((answer) => answer);
+	let updateMembers = [...filterUpdate(ans, teamEngineers), ...filterUpdate(ans, teamInterns)];
+	await getAllUpdates(updateMembers);
 }
 
 // Displays the main menu and gets user selection
@@ -251,12 +398,22 @@ async function getTeamMembers() {
 
 		// To come
 		case appPrompts.editMember:
+			if (teamEngineers.length > 0 || teamInterns > 0) {
+				await updateMembers();
+			} else {
+				log(appPrompts.noMembers);
+			}
 			break;
 
 		// use supplied team data to create the web page
 		default:
-			generateTeamPage(unitMembers);
-			return;
+			if (teamEngineers.length > 0 || teamInterns > 0) {
+				const unitMembers = [teamManager, ...teamEngineers, ...teamInterns];
+				generateTeamPage(unitMembers);
+				return;
+			} else {
+				log(appPrompts.noMembers);
+			}
 	}
 
 	// Keep adding or editing team members
