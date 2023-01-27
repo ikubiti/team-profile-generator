@@ -1,0 +1,70 @@
+body {
+  font-family: "Fira Sans", 'Open Sans', sans-serif;
+  font-size: 16px;
+}
+
+main {
+  min-height: 80vmin;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: "Merriweather", serif;
+  font-weight: 700;
+}
+
+/* Header style */
+.title-header {
+  color: var(--bs-cyan);
+  text-shadow: 1px 1px 2px black, 0 0 25px var(--bs-pink), 0 0 5px var(--bs-gray-300);
+}
+
+/* Background color for header and footer */
+.sec-bg {
+  background-color: rgb(111, 80, 205);
+}
+
+.ter-bg {
+  background-color: var(--bs-primary);
+  color: var(--bs-white);
+}
+
+/* Decorate any text */
+.outline-deco {
+  color: var(--bs-white);
+  font-size: larger;
+  text-shadow: -1px 0 blue, 0 1px coral, 1px 0 coral, 0 -1px coral;
+}
+
+.card-header {
+  height: 100px;
+  width: 100%;
+}
+
+.img-size {
+  width: 30px;
+  height: 30px;
+}
+
+.font-header {
+  font-weight: 900;
+  font-size: large;
+}
+
+.card-shadow {
+  background-color: hsl(0, 0%, 100%);
+  border-radius: 10px;
+  border-width: 1px;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 10px 0 rgba(0, 0, 0, 0.19);
+  margin: 0 auto;
+  padding: 30px 40px;
+}
+
+
+.card-bg {
+  background-color: var(--bs-gray-300);
+}
