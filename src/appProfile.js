@@ -93,11 +93,11 @@ const checkNumber = (value) => {
 		return appPrompts.inputValidation;
 	}
 
-	if (value === '1') {
-		return appPrompts.idValidation;
+	if (typeof value === 'number') {
+		return true;
 	}
 
-	return true;
+	return appPrompts.idValidation;
 };
 
 // Filter input for id numbers
@@ -105,7 +105,7 @@ const filterIdInput = (value) => {
 	let val = parseInt(value);
 	if (val) {
 		if (allIDs.includes(val)) {
-			return '1';
+			return value;
 		}
 
 		return val;
