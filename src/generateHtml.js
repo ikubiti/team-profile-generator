@@ -126,8 +126,6 @@ async function generateTeamPage(teamMembers) {
 	addTeamMembers(teamMembers);
 	addTail();
 	writeToFile(teamPage, pageContents);
-	log(teamMembers);
-	return `Did it!!!`;
 }
 
 

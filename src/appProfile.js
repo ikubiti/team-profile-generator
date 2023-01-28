@@ -231,7 +231,7 @@ const teamCreation = (employee) => {
 		{
 			type: 'input',
 			name: 'school',
-			message: fontCyan(`What is the name ${employee}'s school?`),
+			message: fontCyan(`What is the name of the ${employee}'s school?`),
 			validate: checkInput,
 			when() {
 				return employee === 'Intern';
